@@ -79,7 +79,7 @@ public class ShiroRealm extends AuthorizingRealm {
 
     public static void main(String[] args) {
 
-        String md5 = new Md5Hash("123456","admin1").toString();//source:密码 salt:用户名+用户编号
+        String md5 = new Md5Hash("123456","of21622").toString();//source:密码 salt:用户名+用户编号
         System.err.println(md5);
     }
 }

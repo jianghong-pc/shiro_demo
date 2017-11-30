@@ -9,6 +9,7 @@ import com.qianmi.demo.controller.BaseController;
 import com.qianmi.demo.controller.brand.form.BrandForm;
 import com.qianmi.demo.pojo.brand.Brand;
 import com.qianmi.demo.service.BrandService;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,6 +28,11 @@ public class BrandController extends BaseController {
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() throws ShiroDemoException {
+        BrandForm brandForm = new BrandForm();
+        brandForm.setId(1222);
+        brandForm.setName("sssss");
+        brandForm.toBrand();
+        logger.info("Action.User={}", SecurityUtils.getSubject().getPrincipal());
         return "brand/brand-index";
     }
 

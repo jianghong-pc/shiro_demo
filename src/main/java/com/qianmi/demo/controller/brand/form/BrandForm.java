@@ -1,6 +1,6 @@
 package com.qianmi.demo.controller.brand.form;
 
-import com.qianmi.demo.common.util.Pagination;
+import com.qianmi.demo.controller.BaseForm;
 import com.qianmi.demo.pojo.brand.Brand;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +15,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class BrandForm extends Pagination{
+public class BrandForm extends BaseForm{
 
     private Integer id;
 
@@ -24,7 +24,8 @@ public class BrandForm extends Pagination{
     public Brand toBrand() {
         Brand brand = new Brand();
         brand.setId(id);
-        brand .setName(name);
+        brand.setName(name);
+        brand.setChainMasterId(super.getChainMasterId());
         return brand;
     }
 }

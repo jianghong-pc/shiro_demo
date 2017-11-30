@@ -10,6 +10,8 @@ public class Brand extends BaseEntity {
 
     private static final long serialVersionUID = -8029875489712443626L;
 
+    private String chainMasterId;
+
     private Integer id;
 
     private String name;
