@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true" scan="true" scanPeriod="30 seconds">
+    <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径 -->
+    <contextName>admin_main</contextName>
+    <property scope="context" name="CHARSET" value="UTF-8"/>
+    <property scope="context" name="appName" value="shiro_logs"/>
+    <property scope="context" name="LOG_HOME" value="./logs/${appName}"/>
+    <property scope="context" name="ERR_LOG_HOME" value="${LOG_HOME}/err"/>
+    <property scope="context" name="APP_LOG_HOME" value="${LOG_HOME}/app"/>
+    <property scope="context" name="ERR_LOG_TABLE_NAME" value="app_err_record"/>
+    <property scope="context" name="APP_LOG_TABLE_NAME" value="app_app_record"/>
+
+    <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+    <property scope="context" name="APP_PATTERN"
+              value='%d{yyyy-MM-dd HH:mm:ss.SSS}|%level|%M|0|%thread|%replace(%.-1000msg){"(\r|\n)","\t"}|"%.-2000ex{full}"%n'/>
+    <property scope="context" name="INF_PATTERN" value='%msg%n'/>
+    <property scope="context" name="ERR_PATTERN" value='${CONSOLE_PATTERN}'/>
+    <property scope="context" name="CONSOLE_PATTERN"
+              value='%d{yyyy-MM-dd HH:mm:ss.SSS}-[%thread]-[%level]-%C\:%M:%L-%msg %ex{full}%n'/>
+
+    <!-- ERROR日志文件 -->
+    <appender name="ERR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 只记录error及以上级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <file>${ERR_LOG_HOME}/${HOSTNAME}.error.ing</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件输出的文件名，按天生成文件名 -->
+            <fileNamePattern>${ERR_LOG_HOME}/${HOSTNAME}.error.%d{yyyy-MM-dd}.log.%i.zip</fileNamePattern>
+            <MaxHistory>30</MaxHistory>
+            <!--日志文件保留天数 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按时间回滚的同时，按文件大小来回滚 -->
+                <maxFileSize>30MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${CHARSET}</charset>
+            <pattern>${ERR_PATTERN}</pattern>
+        </encoder>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <jsonGeneratorDecorator class="com.qianmi.demo.config.NonEscapingJsonGeneratorDecorator"/><!--本地日志文件，中文不转码-->
+            <fieldNames class="net.logstash.logback.fieldnames.ShortenedFieldNames"/>
+            <shortenedLoggerNameLength>36</shortenedLoggerNameLength>
+            <includeContext>false</includeContext>
+            <includeMdc>true</includeMdc>
+            <includeCallerInfo>true</includeCallerInfo>
+            <customFields>{"host": "${HOSTNAME}", "appName": "${appName}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- 应用日志文件 -->
+    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${APP_LOG_HOME}/${HOSTNAME}.app.ing</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${APP_LOG_HOME}/${HOSTNAME}_app_log.${HOSTNAME}.json.%i.zip</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>10</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>50MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${CHARSET}</charset>
+            <pattern>${APP_PATTERN}</pattern>
+        </encoder>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <jsonGeneratorDecorator class="com.qianmi.demo.config.NonEscapingJsonGeneratorDecorator"/><!--本地日志文件，中文不转码-->
+            <fieldNames class="net.logstash.logback.fieldnames.ShortenedFieldNames"/>
+            <shortenedLoggerNameLength>36</shortenedLoggerNameLength>
+            <includeContext>false</includeContext>
+            <includeMdc>true</includeMdc>
+            <includeCallerInfo>true</includeCallerInfo>
+            <customFields>{"host": "${HOSTNAME}", "appName": "${appName}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- 异步输出 -->
+    <appender name="ERR_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="ERR_FILE"/>
+    </appender>
+
+    <!-- 异步输出 -->
+    <appender name="APP_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="APP_FILE"/>
+    </appender>
+
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <!-- 本机自测环境的配置，全部输出到控制台 -->
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="APP_ASYNC" />
+        <appender-ref ref="ERR_ASYNC" level="ERROR"/>
+    </root>
+    <!-- 这一句至关重要如果没有，就无法输出sql语句 -->
+    <logger name="com.qianmi.demo.dao.mapper" level="DEBUG" addtivity="false">
+        <appender-ref ref="APP_ASYNC"/>
+    </logger>
+    <logger name="org.springframework.web" level="DEBUG" >
+        <appender-ref ref="STDOUT"/>
+    </logger>
+</configuration>

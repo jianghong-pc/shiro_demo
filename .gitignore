@@ -1,0 +1,14 @@
+*.iml
+.idea
+target/
+*/**/*.~vsd
+.settings/
+.project
+.classpath
+bin
+.DS_Store
+~/
+rebel.xml
+atlassian-ide-plugin.xml
+*.ipr
+*.iws
