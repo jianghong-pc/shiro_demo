@@ -32,7 +32,7 @@ public class ShiroRealm extends AuthorizingRealm {
     private static final Logger logger = LoggerFactory.getLogger(ShiroRealm.class);
 
     @Resource
-    private UserMapper sysUserMapper;
+    private UserMapper userMapper;
 
     @Resource
     private RoleMapper roleMapper;
@@ -45,7 +45,7 @@ public class ShiroRealm extends AuthorizingRealm {
         //获取当前登录输入的用户名，等价于(String) principalCollection.fromRealm(getName()).iterator().next();
         String loginName = (String) super.getAvailablePrincipal(principalCollection);
         //到数据库查是否有此对象
-        User sysUser = sysUserMapper.getUserByName(loginName);// 实际项目中，这里可以根据实际情况做缓存，如果不做，Shiro自己也是有时间间隔机制，2分钟内不会重复执行该方法
+        User sysUser = userMapper.getUserByName(loginName);// 实际项目中，这里可以根据实际情况做缓存，如果不做，Shiro自己也是有时间间隔机制，2分钟内不会重复执行该方法
         if (sysUser != null) {
             //权限信息对象info,用来存放查出的用户的所有的角色（role）及权限（permission）
             SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
@@ -69,7 +69,7 @@ public class ShiroRealm extends AuthorizingRealm {
         logger.info("验证当前Subject时获取到token为：" + ReflectionToStringBuilder.toString(token, ToStringStyle.MULTI_LINE_STYLE));
 
         //查出是否有此用户
-        User adminUser = sysUserMapper.getUserByName(token.getUsername());
+        User adminUser = userMapper.getUserByName(token.getUsername());
         if (adminUser != null) {
             // 若存在，将此用户存放到登录认证info中，无需自己做密码对比，Shiro会为我们进行密码对比校验
             return new SimpleAuthenticationInfo(adminUser.getUsername(), adminUser.getPassword(), ByteSource.Util.bytes(adminUser.getUsername()+adminUser.getId()), getName());
