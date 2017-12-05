@@ -1,6 +1,7 @@
 package com.qianmi.demo.controller;
 
 import com.qianmi.demo.common.util.Pagination;
+import com.qianmi.demo.pojo.user.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shiro.SecurityUtils;
@@ -14,7 +15,7 @@ public class BaseForm extends Pagination {
     private String chainMasterId;
 
     public BaseForm(){
-        this.chainMasterId = (String)SecurityUtils.getSubject().getPrincipal();
+        this.chainMasterId = ((User)SecurityUtils.getSubject().getPrincipal()).getChainMasterId();
     }
 
 }

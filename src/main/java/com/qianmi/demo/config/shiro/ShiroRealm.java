@@ -8,6 +8,7 @@ import com.qianmi.demo.pojo.user.Role;
 import com.qianmi.demo.pojo.user.User;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -19,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,10 +72,19 @@ public class ShiroRealm extends AuthorizingRealm {
         logger.info("验证当前Subject时获取到token为：" + ReflectionToStringBuilder.toString(token, ToStringStyle.MULTI_LINE_STYLE));
 
         //查出是否有此用户
-        User adminUser = userMapper.getUserByName(token.getUsername());
-        if (adminUser != null) {
+        User user = userMapper.getUserByName(token.getUsername());
+
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        SecurityUtils.getSubject().getSession().getHost();
+
+        if (user != null) {
             // 若存在，将此用户存放到登录认证info中，无需自己做密码对比，Shiro会为我们进行密码对比校验
-            return new SimpleAuthenticationInfo(adminUser.getUsername(), adminUser.getPassword(), ByteSource.Util.bytes(adminUser.getUsername()+adminUser.getId()), getName());
+            return new SimpleAuthenticationInfo(user, user.getPassword(), ByteSource.Util.bytes(user.getUsername()+user.getId()), getName());
         }
         return null;
     }

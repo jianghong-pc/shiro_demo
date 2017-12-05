@@ -5,7 +5,7 @@
 
     <!--根据用户登录名查询基础用户信息-->
     <select id="getUserByName" resultType="com.qianmi.demo.pojo.user.User" parameterType="java.lang.String">
-          select id, username, password from pc_user where username=#{loginName}
+          select id, username, password, cmid chainMasterId from pc_user where username=#{loginName}
     </select>
 
 </mapper>

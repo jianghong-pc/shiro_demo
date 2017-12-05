@@ -29,6 +29,8 @@ public class User extends BaseEntity {
      */
     private String password;
 
+    private String chainMasterId;
+
     /**
      * 获取角色名称
      *

@@ -8,6 +8,7 @@ import com.qianmi.demo.common.util.RequestUtil;
 import com.qianmi.demo.controller.BaseController;
 import com.qianmi.demo.controller.brand.form.BrandForm;
 import com.qianmi.demo.pojo.brand.Brand;
+import com.qianmi.demo.pojo.user.User;
 import com.qianmi.demo.service.BrandService;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Controller;
@@ -27,10 +28,11 @@ public class BrandController extends BaseController {
     private BrandService brandService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public String index() throws ShiroDemoException {
+    public String index(User user) throws ShiroDemoException {
         BrandForm brandForm = new BrandForm();
         brandForm.setId(1222);
         brandForm.setName("sssss");
+        brandForm.setChainMasterId(user.getChainMasterId());
         brandForm.toBrand();
         logger.info("Action.User={}", SecurityUtils.getSubject().getPrincipal());
         return "brand/brand-index";
@@ -39,7 +41,6 @@ public class BrandController extends BaseController {
     @RequestMapping(value = "/query", method = RequestMethod.POST, produces = {Constants.PRODUCES})
     @ResponseBody
     public Map<String, Object> query(BrandForm brandForm, HttpServletRequest request) throws ShiroDemoException {
-
         logger.debug("Action.URL={},param={}", RequestUtil.getRestURL(request), brandForm.toString());
         Pagination page = new Pagination(request, brandForm.getiDisplayStart(), brandForm.getiDisplayLength());
         PaginationSupport<Brand> ps = brandService.query(brandForm.toBrand(), page);
